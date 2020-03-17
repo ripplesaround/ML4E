@@ -10,8 +10,8 @@ desc:
 # 可以做一个关于数据集是否混乱的对比
 
 import sys
-import copy
 sys.path.append('../')
+import copy
 import data_process
 import numpy as np
 import matplotlib.pyplot as plt
