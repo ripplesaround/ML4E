@@ -28,8 +28,12 @@ data, true_labels= data_process.read_file_list(path)
 data = np.array(data)
 print('读入数据完毕')
 
-y_pred = SpectralClustering(n_clusters=K, gamma=0.1).fit_predict(data)
-print(len(y_pred))
+# 采用系统预制的函数
+# y_pred = SpectralClustering(n_clusters=K, gamma=0.1).fit_predict(data)
+# print(len(y_pred))
+
+
+
 class1 = np.array([data[i] for i in range(N) if y_pred[i] == 0])
 class2 = np.array([data[i] for i in range(N) if y_pred[i] == 1])
 class3 = np.array([data[i] for i in range(N) if y_pred[i] == 2])
