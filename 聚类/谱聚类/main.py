@@ -16,7 +16,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from k_means import kmeans
 from sklearn.cluster import SpectralClustering
-from Spectral_Clustering import sk_sc
+from Spectral_Clustering import *
 
 K = 3
 # 数据集规模
@@ -25,4 +25,8 @@ path = '../iris/iris.data'
 data, true_labels= data_process.read_file_list(path)
 data = np.array(data)
 print('读入数据完毕')
+
+test = mysc(3,data)
+print(test.cal())
+
 

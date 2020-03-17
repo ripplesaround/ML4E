@@ -19,20 +19,6 @@ from k_means import kmeans
 from sklearn.cluster import SpectralClustering
 
 
-
-
-# 采用系统预制的函数
-#
-
-def sim(data):
-    W = np.zeros(N,N)
-    return W
-
-W = sim(data)
-
-print(data)
-
-
 class sk_sc:
     def __init__(self, K, data,gamma=1):
         self.K = K
@@ -63,7 +49,26 @@ class sk_sc:
         print("class3", " ", len(class3))
 
 
+class mysc:
+    def __init__(self, K, data,gamma=1):
+        self.K = K
+        self.data = data
+        self.N = data.shape[0]
+        self.data_dim = data.shape[1]
+        self.gamma = gamma
 
+    def sim(self):
+        W = np.zeros((self.N,self.N))
+        for i in range(self.N):
+            for j in range(self.N):
+                W[i][j] = np.exp(-np.linalg.norm(self.data[i]-self.data[j])/(2*self.gamma))
+        return W
+
+
+    def cal(self):
+        W = self.sim()
+
+        return W
 
 
 
