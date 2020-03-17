@@ -79,9 +79,17 @@ class mysc:
         # todo 两篇论文的结果不一样。取小还是大的特征值
         V = featurevector[:,:self.K]
         # for i in range(self.K):
-        Lsym = V
+        U = np.zeros(V.shape)
+        for i in range(U.shape[0]):
+            for j in range(U.shape[1]):
+                U[i][j] = V[i][j] / np.linalg.norm(V[i,:])
+        return U
 
-        return Lsym.shape
+    def cluster_plot(self):
+        U = self.cal()
+        ans = kmeans(U,self.K,self.data)
+        ans.cal()
+
 
 
 

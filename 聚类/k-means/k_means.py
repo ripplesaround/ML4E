@@ -78,7 +78,8 @@ class kmeans:
                 y.append(self.orgin_data[cnt][3])
             plt.scatter(x, y, c=self.color[i])
         plt.legend(['class1', 'class2', 'class3'], loc="best")
-        plt.title("K-means Algorithm dim 2/3")
+        # plt.title("K-means Algorithm dim 2/3")
+        plt.title("dim 2/3")
         plt.show()
         for i in range(self.K):
             x = []
@@ -88,7 +89,8 @@ class kmeans:
                 y.append(self.orgin_data[cnt][1])
             plt.scatter(x, y, c=self.color[i])
         plt.legend(['class1', 'class2', 'class3'], loc="best")
-        plt.title("K-means Algorithm dim 0/1")
+        # plt.title("K-means Algorithm dim 0/1")
+        plt.title("dim 0/1")
         plt.show()
 
     def update_center(self):

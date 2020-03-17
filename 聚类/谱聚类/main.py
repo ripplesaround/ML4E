@@ -27,6 +27,6 @@ data = np.array(data)
 print('读入数据完毕')
 
 test = mysc(3,data)
-print(test.cal())
+test.cluster_plot()
 
 
