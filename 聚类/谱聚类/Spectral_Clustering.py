@@ -59,16 +59,23 @@ class mysc:
 
     def sim(self):
         W = np.zeros((self.N,self.N))
+        D = np.eye(self.N)
+        D2 = np.zeros((self.N, self.N))
         for i in range(self.N):
+            D[i][i] = 0
             for j in range(self.N):
-                W[i][j] = np.exp(-np.linalg.norm(self.data[i]-self.data[j])/(2*self.gamma))
-        return W
-
+                if i!=j:
+                    W[i][j] = np.exp(-np.linalg.norm(self.data[i] - self.data[j]) / (2 * self.gamma))
+                else:
+                    W[i][j] = 0
+                D[i][i]+=W[i][j]
+            D2[i][i] = 1/ (np.sqrt(D[i][i]))
+        Lsym =np.dot(np.dot(D2,W),D2) # Lsym = D(-1/2)* W *D(-1/2)
+        return Lsym
 
     def cal(self):
-        W = self.sim()
-
-        return W
+        Lsym = self.sim()
+        return Lsym
 
 
 
