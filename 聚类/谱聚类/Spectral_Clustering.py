@@ -75,7 +75,13 @@ class mysc:
 
     def cal(self):
         Lsym = self.sim()
-        return Lsym
+        eigenvalue, featurevector = np.linalg.eig(Lsym)
+        # todo 两篇论文的结果不一样。取小还是大的特征值
+        V = featurevector[:,:self.K]
+        # for i in range(self.K):
+        Lsym = V
+
+        return Lsym.shape
 
 
 
