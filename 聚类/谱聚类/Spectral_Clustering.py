@@ -17,7 +17,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from k_means import kmeans
 from sklearn.cluster import SpectralClustering
-
+from sklearn import metrics
 
 class sk_sc:
     def __init__(self, K, data,gamma=1):
@@ -47,6 +47,8 @@ class sk_sc:
         print("class1", " ", len(class1))
         print("class2", " ", len(class2))
         print("class3", " ", len(class3))
+        # print(y_pred)
+        print("Calinski-Harabasz Score", metrics.calinski_harabasz_score(self.data, y_pred))
 
 
 class mysc:

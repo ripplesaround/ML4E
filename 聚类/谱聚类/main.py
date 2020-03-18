@@ -25,7 +25,7 @@ data, true_labels= data_process.read_file_list(path)
 data = np.array(data)
 print('读入数据完毕')
 
-test = mysc(3,data,0.1)
+test = mysc(3,data)
 test.cluster_plot()
 
 # test =sk_sc(3,data)
@@ -37,3 +37,4 @@ test.cluster_plot()
 # 0.01 0.1 1 10
 # todo 探究取前k大还是前k小
 
+# todo 可以加入衡量指标！加上更好，不加也可以

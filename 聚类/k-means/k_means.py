@@ -4,6 +4,7 @@ import copy
 import data_process
 import numpy as np
 import matplotlib.pyplot as plt
+from sklearn import metrics
 sys.path.append('../')
 
 class kmeans:
@@ -92,6 +93,14 @@ class kmeans:
         # plt.title("K-means Algorithm dim 0/1")
         plt.title("dim 0/1")
         plt.show()
+        y_pred = []
+        for i in range(self.NUM):
+            for j in range(self.K):
+                if i in self.label[j]:
+                    y_pred.append(j)
+                    break
+        # print(y_pred)
+        print("Calinski-Harabasz Score", metrics.calinski_harabasz_score(self.orgin_data, y_pred))
 
     def update_center(self):
         for i in range(self.K):
