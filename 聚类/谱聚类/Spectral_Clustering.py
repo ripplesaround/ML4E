@@ -95,8 +95,3 @@ class mysc:
         U = self.cal()
         ans = kmeans(U,self.K,self.data)
         ans.cal()
-
-
-
-
-# x = kmeans(path,3)
