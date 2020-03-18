@@ -76,14 +76,14 @@ class mysc:
     def cal(self):
         Lsym = self.sim()
         eigenvalue, featurevector = np.linalg.eig(Lsym)
+        # print(np.dot(Lsym,featurevector[:,0]))
+        # print(featurevector[:,0])
         # todo 两篇论文的结果不一样。取小还是大的特征值
         # 取大
         V = featurevector[:,:self.K]
         # 取小
-        # print(featurevector[:,:5])
-        print(eigenvalue)
         # V = featurevector[:,featurevector.shape[1]-self.K:featurevector.shape[1]]
-        print(V)
+
         # for i in range(self.K):
         U = np.zeros(V.shape)
         for i in range(U.shape[0]):
