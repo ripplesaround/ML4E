@@ -38,3 +38,6 @@ test.cluster_plot()
 # todo 探究取前k大还是前k小
 
 # todo 可以加入衡量指标！加上更好，不加也可以
+# https://www.cnblogs.com/pinard/p/6235920.html
+# https://blog.csdn.net/sinat_26917383/article/details/70577710
+# 数据挖掘导论（完整版）里面也有
