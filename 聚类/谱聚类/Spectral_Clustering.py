@@ -80,7 +80,7 @@ class mysc:
         # print(featurevector[:,0])
         # todo 两篇论文的结果不一样。取小还是大的特征值
         # 取大
-        V = featurevector[:,:self.K]
+        V = featurevector[:,:self.K-1]
         # 取小
         # V = featurevector[:,featurevector.shape[1]-self.K:featurevector.shape[1]]
 

@@ -25,8 +25,13 @@ data, true_labels= data_process.read_file_list(path)
 data = np.array(data)
 print('读入数据完毕')
 
-test = mysc(3,data)
-test.cluster_plot()
+# test = mysc(3,data)
+# test.cluster_plot()
+
+test =sk_sc(3,data)
+test.cal_plot()
+
+
 
 # todo 探究gamma的值对结果的影响
 # 0.01 0.1 1 10
