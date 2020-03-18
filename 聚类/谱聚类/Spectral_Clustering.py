@@ -78,12 +78,12 @@ class mysc:
         eigenvalue, featurevector = np.linalg.eig(Lsym)
         # print(np.dot(Lsym,featurevector[:,0]))
         # print(featurevector[:,0])
-        # todo 两篇论文的结果不一样。取小还是大的特征值
+        # done 两篇论文的结果不一样。取小还是大的特征值
+        # done 标准是取小的，只是这里的Lsym不是传统的Lsym，看论文即可，这里的lambda = 1-lambda
         # 取大
-        V = featurevector[:,:self.K-1]
+        V = featurevector[:,:self.K+3]
         # 取小
         # V = featurevector[:,featurevector.shape[1]-self.K:featurevector.shape[1]]
-
         # for i in range(self.K):
         U = np.zeros(V.shape)
         for i in range(U.shape[0]):
