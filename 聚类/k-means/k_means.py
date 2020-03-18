@@ -13,7 +13,7 @@ class kmeans:
             self.data, self.true_labels = data_process.read_file_list(self.path)
             self.orgin_data = self.data
         else:
-            print('hello\n\n')
+            # print('hello\n\n')
             self.data = path
             self.orgin_data = orgin
         self.K = K
