@@ -5,7 +5,7 @@ Author: ripples
 Email: ripplesaround@sina.com
 
 date: 2020/3/25 13:38
-desc: 
+desc: 采用一对一法
 '''
 import sys
 import copy
@@ -33,4 +33,4 @@ class svm:
                     temp1.append(self.data[i])
             self.train_data.append(np.array(temp))
             self.test_data.append(np.array(temp1))
-
+        self.train_size = train_size
