@@ -14,7 +14,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 class svm:
-    def __init__(self,data,true_labels,K = 3):
+    def __init__(self,data,true_labels,K = 3,train_size=40):
         self.data = data
         self.true_labels = true_labels
         self.K = K  # 共有几类
@@ -24,13 +24,13 @@ class svm:
         for i in range(self.K):
             temp = []
             temp1 = []
-            temp_choice = np.random.choice(a=50,size = 40,replace = False)
+            temp_choice = np.random.choice(a=(self.NUM//self.K),size = train_size,replace = False)
             temp_choice += i * (self.NUM//self.K)
             for i in range(i*(self.NUM//self.K),(i+1)*self.NUM//self.K):
                 if i in temp_choice:
                     temp.append(self.data[i])
                 else:
                     temp1.append(self.data[i])
-            print(len(temp),len(temp1))
-
+            self.train_data.append(np.array(temp))
+            self.test_data.append(np.array(temp1))
 
