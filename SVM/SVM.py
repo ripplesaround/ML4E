@@ -61,6 +61,7 @@ class svm_oago:
         self.pred.extend(self.train_data[2])
         self.pred = np.array(self.pred)
 
+        # notice 这里输入的数据界定svm训练了几维
         self.test_x = self.test_x[:, 2:4]
         self.pred = np.array(self.pred)[:,2:4]
 
@@ -172,6 +173,7 @@ class svm_train:
         return np.ravel(ans)
 
     # todo 这个plot函数是不是应该给大类？
+    # done 二维绘图，指的是svm是用二维数据训练出来的
     def plot(self):
         class1 = np.array(
             [self.support_vectors[i] for i in range(len(self.support_vectors)) if self.support_vector_labels[i] == -1])
