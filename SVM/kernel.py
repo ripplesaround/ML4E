@@ -39,5 +39,6 @@ class Kernel(object):
 
     @staticmethod
     def radial_basis(gamma=0.25):
+        # 这里的0.25 表示 1/ feature
         return lambda x, y: np.exp(-gamma*la.norm(np.subtract(x, y))**2)
         # return lambda x, y: np.exp(-gamma * la.norm(np.subtract(x, y)))

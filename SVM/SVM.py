@@ -18,8 +18,7 @@ import kernel
 from sklearn import svm
 
 MIN_SUPPORT_VECTOR_MULTIPLIER = 1e-5
-
-class svmtrain:
+class svm_oago:
     def __init__(self,data,true_labels,kernel=kernel.Kernel.radial_basis(),c = 1,K = 3,train_size=40):
         self.data = data
         self.true_labels = true_labels
@@ -42,10 +41,9 @@ class svmtrain:
         self.train_size = train_size
         self._kernel = kernel
         self._c = c
-
         self.test_x =[]
-        self.test_x.extend(self.train_data[0])
         self.test_x.extend(self.train_data[1])
+        self.test_x.extend(self.train_data[2])
         label = np.ones((40,1))
         self.test_y =[]
         self.test_y.extend(label-2)
@@ -55,23 +53,32 @@ class svmtrain:
         self.pred = []
         self.pred.extend(self.train_data[1])
         self.pred.extend(self.train_data[2])
-        # print(self.test_x,self.test_y)
-        #
-        # self.test_y = np.ravel([1,1,1,-1,-1])
-        # self.test_x = np.array([[1,2],[2,3],[3,3],[2,1],[3,2]])
 
+        self.feature = self.test_x.shape[1]
 
-    def train(self):
-        X = self.test_x
-        y = self.test_y
+    def train_oago(self):
+        test = svm_train(self.test_x, self.test_y,kernel=kernel.Kernel.radial_basis(1/self.feature),c = 1)
+        test.train()
         clf = svm.SVC(gamma='auto')
-        clf.fit(X, y)
+        clf.fit(self.test_x, self.test_y)
         print('------------------------------------\nsklearn')
         print(clf.support_)
         print(clf.n_support_)
         print(clf.predict(self.pred))
         print('------------------------------------')
-        # print(X,y)
+
+
+class svm_train:
+    def __init__(self,data,true_labels,kernel=kernel.Kernel.radial_basis(),c = 1):
+        self.data = data
+        self.true_labels = true_labels
+        self._kernel = kernel
+        self._c = c
+        self._bias = 0
+
+    def train(self):
+        X = self.data
+        y = self.true_labels
         lagrange_multipliers = self._compute_multipliers(X, y)
         return self._construct_predictor(X, y, lagrange_multipliers)
 
@@ -114,6 +121,10 @@ class svmtrain:
         # bias = y_k - \sum z_i y_i  K(x_k, x_i)
         # Thus we can just predict an example with bias of zero, and
         # compute error.
+        for i,k in enumerate(support_vector_indices):
+            if self._c-lagrange_multipliers[i] > MIN_SUPPORT_VECTOR_MULTIPLIER and k == True:
+                print(i)
+                break
 
 
     def _compute_multipliers(self, X, y):
@@ -130,7 +141,6 @@ class svmtrain:
         q = cvxopt.matrix(-1 * np.ones(n_samples))
 
         # -a_i \leq 0
-        # TODO(tulloch) - modify G, h so that we have a soft-margin classifier
         G_std = cvxopt.matrix(np.diag(np.ones(n_samples) * -1))
         h_std = cvxopt.matrix(np.zeros(n_samples))
 
@@ -153,10 +163,12 @@ class svmtrain:
         """
         Computes the SVM prediction on the given features x.
         """
-        bias = 0
         result = bias
         for z_i, x_i, y_i in zip(self._weights,
                                  self._support_vectors,
                                  self._support_vector_labels):
             result += z_i * y_i * self._kernel(x_i, x)
         return np.sign(result).item()
+
+
+

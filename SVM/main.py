@@ -23,5 +23,5 @@ data, true_labels= data_process.read_file_list(path)
 data = np.array(data)
 print('读入数据完毕')
 
-test = svmtrain(data, true_labels)
-test.train()
+test = svm_oago(data, true_labels)
+test.train_oago()
