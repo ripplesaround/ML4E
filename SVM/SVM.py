@@ -64,6 +64,7 @@ class svm_oago:
         test = svm_train(self.test_x, self.test_y,kernel=kernel.Kernel.radial_basis(1/self.feature),c = 1)
         test.train()
         print(test.predict(self.pred))
+        test.plot()
         clf = svm.SVC(gamma='auto')
         clf.fit(self.test_x, self.test_y)
         print('------------------------------------\nsklearn')
@@ -141,15 +142,24 @@ class svm_train:
         # Lagrange multipliers
         return np.ravel(solution['x'])
 
+    def cal(self,k):
+        result = self._bias
+        for z_i, x_i, y_i in zip(self.support_multipliers,
+                                 self.support_vectors,
+                                 self.support_vector_labels):
+            result += z_i * y_i * self._kernel(x_i, k)
+        return result
+
+    def cal_show(self,y):
+        ans = np.zeros((y.shape[0], 1))
+        for i in y:
+            ans[i] = self.cal(i)
+        return ans
+
     def predict(self, y):
         ans = np.zeros((y.shape[0],1))
         for i,k in enumerate(y):
-            result = self._bias
-            for z_i, x_i, y_i in zip(self.support_multipliers,
-                                 self.support_vectors,
-                                 self.support_vector_labels):
-                result += z_i * y_i * self._kernel(x_i, k)
-            ans[i] = np.sign(result)
+            ans[i] = np.sign(self.cal(k))
         return np.ravel(ans)
 
     def plot(self):
@@ -157,16 +167,41 @@ class svm_train:
             [self.support_vectors[i] for i in range(len(self.support_vectors)) if self.support_vector_labels[i] == -1])
         class2 = np.array(
             [self.support_vectors[i] for i in range(len(self.support_vectors)) if self.support_vector_labels[i] == 1])
+        print('开始画图')
+        x1_min, x1_max = class1[:, 0].min(), class1[:, 0].max()  # 第0列的范围
+        x2_min, x2_max = class2[:, 1].min(), class2[:, 1].max()  # 第1列的范围
+        x3_min, x3_max = class1[:, 2].min(), class1[:, 2].max()  # 第0列的范围
+        x4_min, x4_max = class2[:, 3].min(), class2[:, 3].max()  # 第1列的范围
+        x1, x2,x3,x4 = np.mgrid[x1_min:x1_max:200j, x2_min:x2_max:200j, x3_min:x3_max:200j, x4_min:x4_max:200j]
+        grid_test = np.stack((x1.flat, x2.flat,x3.flat,x4.flat), axis=1)  # 测试点
+        grid_hat = self.cal_show(grid_test)  # 预测分类值
+        grid_hat = grid_hat.reshape(x1.shape)  # 使之与输入的形状相同
+        # mpl.rcParams['font.sans-serif'] = [u'SimHei']
+        # mpl.rcParams['axes.unicode_minus'] = False
+        # cm_light = mpl.colors.ListedColormap(['#A0FFA0', '#FFA0A0', '#A0A0FF'])
+        # cm_dark = mpl.colors.ListedColormap(['g', 'r', 'b'])
+        # plt.pcolormesh(x1, x2, grid_hat, cmap=cm_light)
+        # plt.scatter(x[:, 0], x[:, 1], c=y, edgecolors='k', s=50, cmap=cm_dark)  # 样本
+        # plt.scatter(x_test[:, 0], x_test[:, 1], s=120, facecolors='none', zorder=10)  # 圈中测试集样本
+        plt.xlabel(u'花萼长度', fontsize=13)
+        plt.ylabel(u'花萼宽度', fontsize=13)
+        plt.xlim(x1_min, x1_max)
+        plt.ylim(x2_min, x2_max)
+        plt.title(u'鸢尾花SVM二特征分类', fontsize=15)
+        # plt.grid()
+        plt.show()
+        # k1,k2,k3,k4  = np.mgrid[1:3:3j, 1.5:4.5:3j,4:8:3j, 0:3:3j]
+        # print(k1,k2,k3,k4)
 
-        print(f"类别1中的支持向量个数：{len(class1)}")
-        print(f"类别2中的支持向量个数：{len(class2)}")
-        plt.plot(class1[:, 2], class1[:, 3], 'bo', label="class1")
-        plt.plot(class2[:, 2], class2[:, 3], 'ro', label="class2")
-        plt.legend(loc="best")
-        plt.show()
-        plt.plot(class1[:, 0], class1[:, 1], 'bo', label="class1")
-        plt.plot(class2[:, 0], class2[:, 1], 'ro', label="class2")
-        plt.legend(loc="best")
-        plt.show()
+        # print(f"类别1中的支持向量个数：{len(class1)}")
+        # print(f"类别2中的支持向量个数：{len(class2)}")
+        # plt.plot(class1[:, 2], class1[:, 3], 'bo', label="class1")
+        # plt.plot(class2[:, 2], class2[:, 3], 'ro', label="class2")
+        # plt.legend(loc="best")
+        # plt.show()
+        # plt.plot(class1[:, 0], class1[:, 1], 'bo', label="class1")
+        # plt.plot(class2[:, 0], class2[:, 1], 'ro', label="class2")
+        # plt.legend(loc="best")
+        # plt.show()
 
 
