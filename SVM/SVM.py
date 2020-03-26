@@ -7,6 +7,11 @@ Email: ripplesaround@sina.com
 date: 2020/3/25 13:38
 desc: 采用一对一法
 '''
+
+# done 单个svm训练
+# todo 训练全部的，这个要在svm_oago里面写
+# todo 超级绘图
+
 import sys
 import copy
 import data_process
@@ -16,6 +21,7 @@ import cvxopt.solvers
 import logging
 import kernel
 from sklearn import svm
+import matplotlib as mpl
 
 MIN_SUPPORT_VECTOR_MULTIPLIER = 1e-5
 class svm_oago:
@@ -54,6 +60,9 @@ class svm_oago:
         self.pred.extend(self.train_data[1])
         self.pred.extend(self.train_data[2])
         self.pred = np.array(self.pred)
+
+        self.test_x = self.test_x[:, 2:4]
+        self.pred = np.array(self.pred)[:,2:4]
 
         self.feature = self.test_x.shape[1]
         self.support_multipliers = []
@@ -152,8 +161,8 @@ class svm_train:
 
     def cal_show(self,y):
         ans = np.zeros((y.shape[0], 1))
-        for i in y:
-            ans[i] = self.cal(i)
+        for i,k in enumerate(y):
+            ans[i] = self.cal(k)
         return ans
 
     def predict(self, y):
@@ -162,32 +171,29 @@ class svm_train:
             ans[i] = np.sign(self.cal(k))
         return np.ravel(ans)
 
+    # todo 这个plot函数是不是应该给大类？
     def plot(self):
         class1 = np.array(
             [self.support_vectors[i] for i in range(len(self.support_vectors)) if self.support_vector_labels[i] == -1])
         class2 = np.array(
             [self.support_vectors[i] for i in range(len(self.support_vectors)) if self.support_vector_labels[i] == 1])
         print('开始画图')
-        x1_min, x1_max = class1[:, 0].min(), class1[:, 0].max()  # 第0列的范围
-        x2_min, x2_max = class2[:, 1].min(), class2[:, 1].max()  # 第1列的范围
-        x3_min, x3_max = class1[:, 2].min(), class1[:, 2].max()  # 第0列的范围
-        x4_min, x4_max = class2[:, 3].min(), class2[:, 3].max()  # 第1列的范围
-        x1, x2,x3,x4 = np.mgrid[x1_min:x1_max:200j, x2_min:x2_max:200j, x3_min:x3_max:200j, x4_min:x4_max:200j]
-        grid_test = np.stack((x1.flat, x2.flat,x3.flat,x4.flat), axis=1)  # 测试点
+        x1_min, x1_max = self.support_vectors[:, 0].min(), self.support_vectors[:, 0].max()  # 第0列的范围
+        x2_min, x2_max = self.support_vectors[:, 1].min(), self.support_vectors[:, 1].max()  # 第1列的范围
+        x1, x2 = np.mgrid[x1_min:x1_max:200j, x2_min:x2_max:200j]
+        grid_test = np.stack((x1.flat, x2.flat), axis=1)  # 测试点
         grid_hat = self.cal_show(grid_test)  # 预测分类值
         grid_hat = grid_hat.reshape(x1.shape)  # 使之与输入的形状相同
-        # mpl.rcParams['font.sans-serif'] = [u'SimHei']
-        # mpl.rcParams['axes.unicode_minus'] = False
-        # cm_light = mpl.colors.ListedColormap(['#A0FFA0', '#FFA0A0', '#A0A0FF'])
-        # cm_dark = mpl.colors.ListedColormap(['g', 'r', 'b'])
-        # plt.pcolormesh(x1, x2, grid_hat, cmap=cm_light)
-        # plt.scatter(x[:, 0], x[:, 1], c=y, edgecolors='k', s=50, cmap=cm_dark)  # 样本
-        # plt.scatter(x_test[:, 0], x_test[:, 1], s=120, facecolors='none', zorder=10)  # 圈中测试集样本
-        plt.xlabel(u'花萼长度', fontsize=13)
-        plt.ylabel(u'花萼宽度', fontsize=13)
+        cm_light = mpl.colors.ListedColormap(['#A0FFA0', '#FFA0A0'])
+        cm_dark = mpl.colors.ListedColormap(['g', 'r'])
         plt.xlim(x1_min, x1_max)
         plt.ylim(x2_min, x2_max)
-        plt.title(u'鸢尾花SVM二特征分类', fontsize=15)
+        # print(grid_hat)
+        plt.pcolormesh(x1, x2, grid_hat, cmap=cm_light)
+        plt.scatter(self.data[:, 0], self.data[:, 1], c=self.true_labels, edgecolors='k', s=50, cmap=cm_dark)  # 样本
+        plt.xlim(x1_min, x1_max)
+        plt.ylim(x2_min, x2_max)
+        plt.title("test", fontsize=15)
         # plt.grid()
         plt.show()
         # k1,k2,k3,k4  = np.mgrid[1:3:3j, 1.5:4.5:3j,4:8:3j, 0:3:3j]
