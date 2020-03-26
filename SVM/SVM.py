@@ -12,9 +12,12 @@ import copy
 import data_process
 import numpy as np
 import matplotlib.pyplot as plt
+import cvxopt.solvers
+import logging
+import kernel
 
 class svm:
-    def __init__(self,data,true_labels,K = 3,train_size=40):
+    def __init__(self,data,true_labels,kernel=kernel.Kernel.radial_basis(),c = 0.1,K = 3,train_size=40):
         self.data = data
         self.true_labels = true_labels
         self.K = K  # 共有几类
@@ -34,3 +37,6 @@ class svm:
             self.train_data.append(np.array(temp))
             self.test_data.append(np.array(temp1))
         self.train_size = train_size
+        self._kernel = kernel
+        self._c = c
+
