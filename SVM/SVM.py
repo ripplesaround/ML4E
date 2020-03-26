@@ -97,37 +97,10 @@ class svm_train:
         return K
 
     def _construct_predictor(self, X, y, lagrange_multipliers):
-        support_vector_indices = \
-            lagrange_multipliers > MIN_SUPPORT_VECTOR_MULTIPLIER
-        # for i,k in enumerate(support_vector_indices ):
-        #     if self._c-lagrange_multipliers[i] < MIN_SUPPORT_VECTOR_MULTIPLIER:
-        #         support_vector_indices[i] = False
+        support_vector_indices = lagrange_multipliers > MIN_SUPPORT_VECTOR_MULTIPLIER
         self.support_multipliers = lagrange_multipliers[support_vector_indices]
         self.support_vectors = X[support_vector_indices]
         self.support_vector_labels = y[support_vector_indices]
-
-        class1 = np.array([self.support_vectors[i] for i in range(len(self.support_vectors)) if self.support_vector_labels[i] == -1])
-        class2 = np.array([self.support_vectors[i] for i in range(len(self.support_vectors)) if self.support_vector_labels[i] == 1])
-        print(lagrange_multipliers)
-        print(support_vector_indices)
-        print(len(class1))
-        print(len(class2))
-        plt.plot(class1[:, 2], class1[:, 3], 'bo', label="class1")
-        plt.plot(class2[:, 2], class2[:, 3], 'ro', label="class2")
-        plt.legend(loc="best")
-        plt.show()
-        plt.plot(class1[:, 0], class1[:, 1], 'bo', label="class1")
-        plt.plot(class2[:, 0], class2[:, 1], 'ro', label="class2")
-        plt.legend(loc="best")
-        plt.show()
-
-
-        # http://www.cs.cmu.edu/~guestrin/Class/10701-S07/Slides/kernels.pdf
-        # bias = y_k - \sum z_i y_i  K(x_k, x_i)
-        # Thus we can just predict an example with bias of zero, and
-        # compute error.
-
-
         for i,k in enumerate(support_vector_indices):
             if self._c-lagrange_multipliers[i] > MIN_SUPPORT_VECTOR_MULTIPLIER and k == True:
                 print(f"计算bias是用的第{i}号向量")
@@ -169,9 +142,6 @@ class svm_train:
         return np.ravel(solution['x'])
 
     def predict(self, y):
-        """
-        Computes the SVM prediction on the given features x.
-        """
         ans = np.zeros((y.shape[0],1))
         for i,k in enumerate(y):
             result = self._bias
@@ -182,5 +152,21 @@ class svm_train:
             ans[i] = np.sign(result)
         return np.ravel(ans)
 
+    def plot(self):
+        class1 = np.array(
+            [self.support_vectors[i] for i in range(len(self.support_vectors)) if self.support_vector_labels[i] == -1])
+        class2 = np.array(
+            [self.support_vectors[i] for i in range(len(self.support_vectors)) if self.support_vector_labels[i] == 1])
+
+        print(f"类别1中的支持向量个数：{len(class1)}")
+        print(f"类别2中的支持向量个数：{len(class2)}")
+        plt.plot(class1[:, 2], class1[:, 3], 'bo', label="class1")
+        plt.plot(class2[:, 2], class2[:, 3], 'ro', label="class2")
+        plt.legend(loc="best")
+        plt.show()
+        plt.plot(class1[:, 0], class1[:, 1], 'bo', label="class1")
+        plt.plot(class2[:, 0], class2[:, 1], 'ro', label="class2")
+        plt.legend(loc="best")
+        plt.show()
 
 
