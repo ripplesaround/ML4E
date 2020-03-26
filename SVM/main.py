@@ -23,4 +23,4 @@ data, true_labels= data_process.read_file_list(path)
 data = np.array(data)
 print('读入数据完毕')
 
-test = svm(data, true_labels)
+test = svmtrain(data, true_labels)
