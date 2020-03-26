@@ -15,23 +15,24 @@ import matplotlib.pyplot as plt
 import cvxopt.solvers
 import logging
 import kernel
+from sklearn import svm
 
 MIN_SUPPORT_VECTOR_MULTIPLIER = 1e-5
 
 class svmtrain:
-    def __init__(self,data,true_labels,kernel=kernel.Kernel.radial_basis(),c = 0.1,K = 3,train_size=40):
+    def __init__(self,data,true_labels,kernel=kernel.Kernel.radial_basis(),c = 1,K = 3,train_size=40):
         self.data = data
         self.true_labels = true_labels
-        self.K = K  # 共有几类
+        self.cluster = K  # 共有几类
         self.NUM = len(data)
         self.train_data = []
         self.test_data = []
-        for i in range(self.K):
+        for i in range(self.cluster):
             temp = []
             temp1 = []
-            temp_choice = np.random.choice(a=(self.NUM//self.K),size = train_size,replace = False)
-            temp_choice += i * (self.NUM//self.K)
-            for i in range(i*(self.NUM//self.K),(i+1)*self.NUM//self.K):
+            temp_choice = np.random.choice(a=(self.NUM//self.cluster),size = train_size,replace = False)
+            temp_choice += i * (self.NUM//self.cluster)
+            for i in range(i*(self.NUM//self.cluster),(i+1)*self.NUM//self.cluster):
                 if i in temp_choice:
                     temp.append(self.data[i])
                 else:
@@ -42,7 +43,35 @@ class svmtrain:
         self._kernel = kernel
         self._c = c
 
-    def train(self, X, y):
+        self.test_x =[]
+        self.test_x.extend(self.train_data[0])
+        self.test_x.extend(self.train_data[1])
+        label = np.ones((40,1))
+        self.test_y =[]
+        self.test_y.extend(label-2)
+        self.test_y.extend(label)
+        self.test_x = np.array(self.test_x)
+        self.test_y = np.ravel(np.array(self.test_y))
+        self.pred = []
+        self.pred.extend(self.train_data[1])
+        self.pred.extend(self.train_data[2])
+        # print(self.test_x,self.test_y)
+        #
+        # self.test_y = np.ravel([1,1,1,-1,-1])
+        # self.test_x = np.array([[1,2],[2,3],[3,3],[2,1],[3,2]])
+
+
+    def train(self):
+        X = self.test_x
+        y = self.test_y
+        clf = svm.SVC(gamma='auto')
+        clf.fit(X, y)
+        print('------------------------------------\nsklearn')
+        print(clf.support_)
+        print(clf.n_support_)
+        print(clf.predict(self.pred))
+        print('------------------------------------')
+        # print(X,y)
         lagrange_multipliers = self._compute_multipliers(X, y)
         return self._construct_predictor(X, y, lagrange_multipliers)
 
@@ -58,30 +87,34 @@ class svmtrain:
     def _construct_predictor(self, X, y, lagrange_multipliers):
         support_vector_indices = \
             lagrange_multipliers > MIN_SUPPORT_VECTOR_MULTIPLIER
-
+        # for i,k in enumerate(support_vector_indices ):
+        #     if self._c-lagrange_multipliers[i] < MIN_SUPPORT_VECTOR_MULTIPLIER:
+        #         support_vector_indices[i] = False
         support_multipliers = lagrange_multipliers[support_vector_indices]
         support_vectors = X[support_vector_indices]
         support_vector_labels = y[support_vector_indices]
+
+        class1 = np.array([support_vectors[i] for i in range(len(support_vectors)) if support_vector_labels[i] == -1])
+        class2 = np.array([support_vectors[i] for i in range(len(support_vectors)) if support_vector_labels[i] == 1])
+        print(lagrange_multipliers)
+        print(support_vector_indices)
+        print(len(class1))
+        print(len(class2))
+        plt.plot(class1[:, 2], class1[:, 3], 'bo', label="class1")
+        plt.plot(class2[:, 2], class2[:, 3], 'ro', label="class2")
+        plt.legend(loc="best")
+        plt.show()
+        plt.plot(class1[:, 0], class1[:, 1], 'bo', label="class1")
+        plt.plot(class2[:, 0], class2[:, 1], 'ro', label="class2")
+        plt.legend(loc="best")
+        plt.show()
+
 
         # http://www.cs.cmu.edu/~guestrin/Class/10701-S07/Slides/kernels.pdf
         # bias = y_k - \sum z_i y_i  K(x_k, x_i)
         # Thus we can just predict an example with bias of zero, and
         # compute error.
-        bias = np.mean(
-            [y_k - SVMPredictor(
-                kernel=self._kernel,
-                bias=0.0,
-                weights=support_multipliers,
-                support_vectors=support_vectors,
-                support_vector_labels=support_vector_labels).predict(x_k)
-             for (y_k, x_k) in zip(support_vector_labels, support_vectors)])
 
-        return SVMPredictor(
-            kernel=self._kernel,
-            bias=bias,
-            weights=support_multipliers,
-            support_vectors=support_vectors,
-            support_vector_labels=support_vector_labels)
 
     def _compute_multipliers(self, X, y):
         n_samples, n_features = X.shape
@@ -116,30 +149,12 @@ class svmtrain:
         # Lagrange multipliers
         return np.ravel(solution['x'])
 
-class SVMPredictor(object):
-    def __init__(self,
-                 kernel,
-                 bias,
-                 weights,
-                 support_vectors,
-                 support_vector_labels):
-        self._kernel = kernel
-        self._bias = bias
-        self._weights = weights
-        self._support_vectors = support_vectors
-        self._support_vector_labels = support_vector_labels
-        assert len(support_vectors) == len(support_vector_labels)
-        assert len(weights) == len(support_vector_labels)
-        logging.info("Bias: %s", self._bias)
-        logging.info("Weights: %s", self._weights)
-        logging.info("Support vectors: %s", self._support_vectors)
-        logging.info("Support vector labels: %s", self._support_vector_labels)
-
     def predict(self, x):
         """
         Computes the SVM prediction on the given features x.
         """
-        result = self._bias
+        bias = 0
+        result = bias
         for z_i, x_i, y_i in zip(self._weights,
                                  self._support_vectors,
                                  self._support_vector_labels):

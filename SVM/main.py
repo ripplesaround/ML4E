@@ -24,3 +24,4 @@ data = np.array(data)
 print('读入数据完毕')
 
 test = svmtrain(data, true_labels)
+test.train()

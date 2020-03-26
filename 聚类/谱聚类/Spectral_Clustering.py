@@ -67,7 +67,7 @@ class mysc:
             D[i][i] = 0
             for j in range(self.N):
                 if i!=j:
-                    W[i][j] = np.exp(-np.linalg.norm(self.data[i] - self.data[j]) / (2 * self.gamma))
+                    W[i][j] = np.exp(-np.linalg.norm(self.data[i] - self.data[j])*np.linalg.norm(self.data[i] - self.data[j]) / (2 * self.gamma))
                 else:
                     W[i][j] = 0
                 D[i][i]+=W[i][j]

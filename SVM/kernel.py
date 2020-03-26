@@ -38,5 +38,6 @@ class Kernel(object):
         return lambda x, y: np.tanh(kappa * np.dot(x, y) + c)
 
     @staticmethod
-    def radial_basis(gamma=10):
-        return lambda x, y: np.exp(-gamma*la.norm(np.subtract(x, y)))
+    def radial_basis(gamma=0.25):
+        return lambda x, y: np.exp(-gamma*la.norm(np.subtract(x, y))**2)
+        # return lambda x, y: np.exp(-gamma * la.norm(np.subtract(x, y)))
