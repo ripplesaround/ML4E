@@ -53,12 +53,17 @@ class svm_oago:
         self.pred = []
         self.pred.extend(self.train_data[1])
         self.pred.extend(self.train_data[2])
+        self.pred = np.array(self.pred)
 
         self.feature = self.test_x.shape[1]
+        self.support_multipliers = []
+        self.support_vectors = []
+        self.support_vector_labels = []
 
     def train_oago(self):
         test = svm_train(self.test_x, self.test_y,kernel=kernel.Kernel.radial_basis(1/self.feature),c = 1)
         test.train()
+        print(test.predict(self.pred))
         clf = svm.SVC(gamma='auto')
         clf.fit(self.test_x, self.test_y)
         print('------------------------------------\nsklearn')
@@ -97,12 +102,12 @@ class svm_train:
         # for i,k in enumerate(support_vector_indices ):
         #     if self._c-lagrange_multipliers[i] < MIN_SUPPORT_VECTOR_MULTIPLIER:
         #         support_vector_indices[i] = False
-        support_multipliers = lagrange_multipliers[support_vector_indices]
-        support_vectors = X[support_vector_indices]
-        support_vector_labels = y[support_vector_indices]
+        self.support_multipliers = lagrange_multipliers[support_vector_indices]
+        self.support_vectors = X[support_vector_indices]
+        self.support_vector_labels = y[support_vector_indices]
 
-        class1 = np.array([support_vectors[i] for i in range(len(support_vectors)) if support_vector_labels[i] == -1])
-        class2 = np.array([support_vectors[i] for i in range(len(support_vectors)) if support_vector_labels[i] == 1])
+        class1 = np.array([self.support_vectors[i] for i in range(len(self.support_vectors)) if self.support_vector_labels[i] == -1])
+        class2 = np.array([self.support_vectors[i] for i in range(len(self.support_vectors)) if self.support_vector_labels[i] == 1])
         print(lagrange_multipliers)
         print(support_vector_indices)
         print(len(class1))
@@ -121,23 +126,27 @@ class svm_train:
         # bias = y_k - \sum z_i y_i  K(x_k, x_i)
         # Thus we can just predict an example with bias of zero, and
         # compute error.
+
+
         for i,k in enumerate(support_vector_indices):
             if self._c-lagrange_multipliers[i] > MIN_SUPPORT_VECTOR_MULTIPLIER and k == True:
-                print(i)
+                print(f"计算bias是用的第{i}号向量")
+                self._bias = y[i] - sum(lagrange_multipliers*y*self.K[i,:])
+                print(self._bias)
                 break
 
 
     def _compute_multipliers(self, X, y):
         n_samples, n_features = X.shape
 
-        K = self._gram_matrix(X)
+        self.K = self._gram_matrix(X)
         # Solves
         # min 1/2 x^T P x + q^T x
         # s.t.
         #  Gx \coneleq h
         #  Ax = b
 
-        P = cvxopt.matrix(np.outer(y, y) * K)
+        P = cvxopt.matrix(np.outer(y, y) * self.K)
         q = cvxopt.matrix(-1 * np.ones(n_samples))
 
         # -a_i \leq 0
@@ -159,16 +168,19 @@ class svm_train:
         # Lagrange multipliers
         return np.ravel(solution['x'])
 
-    def predict(self, x):
+    def predict(self, y):
         """
         Computes the SVM prediction on the given features x.
         """
-        result = bias
-        for z_i, x_i, y_i in zip(self._weights,
-                                 self._support_vectors,
-                                 self._support_vector_labels):
-            result += z_i * y_i * self._kernel(x_i, x)
-        return np.sign(result).item()
+        ans = np.zeros((y.shape[0],1))
+        for i,k in enumerate(y):
+            result = self._bias
+            for z_i, x_i, y_i in zip(self.support_multipliers,
+                                 self.support_vectors,
+                                 self.support_vector_labels):
+                result += z_i * y_i * self._kernel(x_i, k)
+            ans[i] = np.sign(result)
+        return np.ravel(ans)
 
 
 
