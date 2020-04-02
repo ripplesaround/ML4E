@@ -22,8 +22,7 @@ K = 3
 # 数据集规模
 NUM = 150
 
-# path = '../iris/iris.data'
-path = './iris.data'
+path = '../iris/iris.data'
 data, true_labels= data_process.read_file_list(path)
 data = np.array(data)
 # data = data_process.scale(data)
@@ -32,7 +31,7 @@ print('读入数据完毕')
 
 # 第 k 个模型的高斯分布密度函数
 def phi(Y, mu_k, cov_k):
-    norm = multivariate_normal(me
+    norm = multivariate_normal(mean=mu_k, cov=cov_k)
     return norm.pdf(Y)
 
 # E步
