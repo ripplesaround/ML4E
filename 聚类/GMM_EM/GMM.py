@@ -201,3 +201,6 @@ plt.show()
 print("class1"," ",len(class1))
 print("class2"," ",len(class2))
 print("class3"," ",len(class3))
+
+print("Calinski-Harabasz Score", metrics.calinski_harabasz_score(data, category))
+print("silhouette_scores", metrics.silhouette_score(data, category))

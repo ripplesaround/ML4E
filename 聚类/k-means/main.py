@@ -11,11 +11,11 @@ desc:
 
 import sys
 import copy
-import data_process
+sys.path.append('../')
 import numpy as np
 import matplotlib.pyplot as plt
 from k_means import kmeans
-sys.path.append('../')
+
 path = '../iris/iris.data'
 x = kmeans(path,3)
 x.cal()

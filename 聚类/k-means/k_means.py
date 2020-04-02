@@ -1,11 +1,12 @@
 # 可以做一个关于数据集排序是否混乱的对比
 import sys
 import copy
+sys.path.append('../')
 import data_process
 import numpy as np
 import matplotlib.pyplot as plt
 from sklearn import metrics
-sys.path.append('../')
+
 
 class kmeans:
     def __init__(self,path,K,orgin=None):
