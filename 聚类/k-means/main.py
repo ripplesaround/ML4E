@@ -10,12 +10,12 @@ desc:
 # 可以做一个关于数据集是否混乱的对比
 
 import sys
-sys.path.append('../')
 import copy
 import data_process
 import numpy as np
 import matplotlib.pyplot as plt
 from k_means import kmeans
+sys.path.append('../')
 path = '../iris/iris.data'
 x = kmeans(path,3)
 x.cal()
