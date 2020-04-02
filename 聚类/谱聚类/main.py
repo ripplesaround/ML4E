@@ -25,19 +25,19 @@ data, true_labels= data_process.read_file_list(path)
 data = np.array(data)
 print('读入数据完毕')
 
-test = mysc(3,data)
+test = mysc(3,data,10)
 test.cluster_plot()
-
+#
 # test =sk_sc(3,data)
 # test.cal_plot()
 
 
 
-# todo 探究gamma的值对结果的影响
+# done 探究gamma的值对结果的影响
 # 0.01 0.1 1 10
-# todo 探究取前k大还是前k小
+# done 探究取前k大还是前k小
 
-# todo 可以加入衡量指标！加上更好，不加也可以
+# done 可以加入衡量指标！加上更好，不加不可以
 # https://www.cnblogs.com/pinard/p/6235920.html
 # https://blog.csdn.net/sinat_26917383/article/details/70577710
 # 数据挖掘导论（完整版）里面也有

@@ -100,7 +100,8 @@ class kmeans:
                     y_pred.append(j)
                     break
         # print(y_pred)
-        print("Calinski-Harabasz Score", metrics.calinski_harabasz_score(self.orgin_data, y_pred))
+        print("Calinski-Harabasz Score", metrics.calinski_harabasz_score(self.data, y_pred))
+        print("silhouette_scores", metrics.silhouette_score(self.data, y_pred))
 
     def update_center(self):
         for i in range(self.K):

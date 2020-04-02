@@ -49,6 +49,8 @@ class sk_sc:
         print("class3", " ", len(class3))
         # print(y_pred)
         print("Calinski-Harabasz Score", metrics.calinski_harabasz_score(self.data, y_pred))
+        print("silhouette_scores", metrics.silhouette_score(self.data, y_pred))
+
 
 
 class mysc:
@@ -83,7 +85,7 @@ class mysc:
         # done 两篇论文的结果不一样。取小还是大的特征值
         # done 标准是取小的，只是这里的Lsym不是传统的Lsym，看论文即可，这里的lambda = 1-lambda
         # 取大
-        V = featurevector[:,:self.K+3]
+        V = featurevector[:,:self.K+1]
         # 取小
         # V = featurevector[:,featurevector.shape[1]-self.K:featurevector.shape[1]]
         # for i in range(self.K):
