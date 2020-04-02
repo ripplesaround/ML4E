@@ -15,6 +15,7 @@ import data_process
 import numpy as np
 import matplotlib.pyplot as plt
 from scipy.stats import multivariate_normal
+from sklearn import metrics
 
 # 考虑用k-means迭代后的center来更新结果
 
@@ -83,13 +84,13 @@ def maximize(Y, gamma):
 def init_params(shape, K,max_,min_):
     N, D = shape
     # 采用k-means
-    k = [[5.901612903225807, 2.7483870967741932, 4.393548387096775, 1.4338709677419355],
-      [6.8500000000000005, 3.0736842105263156, 5.742105263157893, 2.0710526315789473], [5.006, 3.418, 1.464, 0.244]]
-    mu = np.array(k)
-    mu = scale_data_init(mu,max_,min_)
-    print(mu)
+    # k = [[5.901612903225807, 2.7483870967741932, 4.393548387096775, 1.4338709677419355],
+    #   [6.8500000000000005, 3.0736842105263156, 5.742105263157893, 2.0710526315789473], [5.006, 3.418, 1.464, 0.244]]
+    # mu = np.array(k)
+    # mu = scale_data_init(mu,max_,min_)
+    # print(mu)
     # 采用随机初值
-    # mu = np.random.rand(K, D)
+    mu = np.random.rand(K, D)
     # print(mu)
     cov = np.array([np.eye(D)] * K)
     alpha = np.array([1.0 / K] * K)
@@ -203,5 +204,5 @@ print("class1"," ",len(class1))
 print("class2"," ",len(class2))
 print("class3"," ",len(class3))
 
-print("Calinski-Harabasz Score", metrics.calinski_harabasz_score(data, category))
+# print("Calinski-Harabasz Score", metrics.calinski_harabasz_score(data, category))
 print("silhouette_scores", metrics.silhouette_score(data, category))
