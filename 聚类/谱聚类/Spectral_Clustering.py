@@ -82,7 +82,7 @@ class mysc:
         eigenvalue, featurevector = np.linalg.eig(Lsym)
         # print(np.dot(Lsym,featurevector[:,0]))
         # print(featurevector[:,0])
-        # done 两篇论文的结果不一样。取小还是大的特征值
+        # done 两篇论文的结果不一样。取小还是大的特征值 这个问题太silly了
         # done 标准是取小的，只是这里的Lsym不是传统的Lsym，看论文即可，这里的lambda = 1-lambda
         # 取大
         V = featurevector[:,:self.K+1]
