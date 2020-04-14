@@ -9,8 +9,8 @@ desc: 采用一对一法
 '''
 
 # done 单个svm训练
-# todo 训练全部的，这个要在svm_oago里面写
-# todo 超级绘图
+# done 训练全部的，这个要在svm_oago里面写 svm_oago 训练成功，值得注意的是决策便捷的点
+# done 超级绘图
 
 import sys
 import copy
@@ -119,17 +119,80 @@ class svm_oago:
         print(test3.predict(self.pred))
         test3.plot(self.pred)
 
+        self.pred = []
+        self.pred.extend(self.test_data[0])
+        self.pred.extend(self.test_data[1])
+        self.pred.extend(self.test_data[2])
+        self.pred = np.array(self.pred)
+        ans = self.oago_pred(test1,test2,test3,self.pred)
+        print(ans)
 
-        clf = svm.SVC(gamma='auto')
-        clf.fit(self.test_x, self.test_y)
-        print('------------------------------------\nsklearn')
-        print(clf.support_)
-        print(clf.n_support_)
-        print(clf.predict(self.pred))
-        print('------------------------------------')
+        # 开始画图
+        x1_min, x1_max = self.data[:, 0].min(), self.data[:, 0].max()  # 第0列的范围
+        x2_min, x2_max = self.data[:, 1].min(), self.data[:, 1].max()  # 第1列的范围
+        x3_min, x3_max = self.data[:, 2].min(), self.data[:, 2].max()  # 第2列的范围
+        x4_min, x4_max = self.data[:, 3].min(), self.data[:, 3].max()  # 第3列的范围
+        x1, x2 = np.mgrid[x1_min:x1_max:600j, x2_min:x2_max:600j]
+        x3, x4 = np.mgrid[x3_min:x3_max:600j, x4_min:x4_max:600j]
+        grid_test = np.stack((x1.flat, x2.flat, x3.flat, x4.flat), axis=1)  # 测试点
+        grid_hat = self.oago_pred(test1,test2,test3,grid_test)  # 预测分类值
+        grid_hat = grid_hat.reshape(x1.shape)  # 使之与输入的形状相同
+        cm_light = mpl.colors.ListedColormap(['#A0FFA0', '#FFA0A0',"#89CFF0"])
+        plt.xlim(x3_min, x3_max)
+        plt.ylim(x4_min, x4_max)
+        # print(grid_hat)
+        plt.pcolormesh(x3, x4, grid_hat, cmap=cm_light)
+        cm_dark = mpl.colors.ListedColormap(['g', 'r', 'b'])
+        plt.scatter(self.pred[:, 2], self.pred[:, 3], c=ans, edgecolors='k', s=50, cmap=cm_dark, marker='^')
+        self.train_data_plot = []
+        self.train_data_plot.extend(self.train_data[0])
+        self.train_data_plot.extend(self.train_data[1])
+        self.train_data_plot.extend(self.train_data[2])
+        self.train_data_plot = np.array(self.train_data_plot)
+        label = np.ones((40, 1))
+        labels  = []
+        labels.extend(label - 1)
+        labels.extend(label)
+        labels.extend(label + 1)
+        labels = np.ravel(np.array(labels))
+        plt.scatter(self.train_data_plot[:, 2], self.train_data_plot[:, 3], c=labels, edgecolors='k', s=50, cmap=cm_dark)
+        plt.show()
 
-    def pred(self,test1,test2,test3):
-        return 0
+        # clf = svm.SVC(gamma='auto')
+        # clf.fit(self.test_x, self.test_y)
+        # print('------------------------------------\nsklearn')
+        # print(clf.support_)
+        # print(clf.n_support_)
+        # print(clf.predict(self.pred))
+        # print('------------------------------------')
+
+    def oago_pred(self,test1,test2,test3,test_data):
+        '''
+        实现多分类一对一svm的预测功能
+        :param test1: class12的svm
+        :param test2: class01的svm
+        :param test3: class02的svm
+        :param test_data:  测试集
+        :return: list，包含预测的结果
+        '''
+        ans = np.zeros((test_data.shape[0], 1))
+        flag1 = test1.predict(test_data)
+        flag2 = test2.predict(test_data)
+        flag3 = test3.predict(test_data)
+
+        # notice 值得注意的是这里，这个判断在绘制决策边界附近的点的时候很难说，因为决策边界中有可能有情况不符合这种点
+        # 即一个错，另一个没有的那种情况
+        for i,a in enumerate(flag1):
+            b = flag2[i]
+            c = flag3[i]
+            if a==-1 and b==1:
+                ans[i] = 1
+            if b==-1 and c==-1:
+                ans[i] = 0
+            if a==1 and c==1:
+                ans[i] = 2
+
+        return np.ravel(ans)
 
 
 
