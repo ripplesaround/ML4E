@@ -22,6 +22,8 @@ import logging
 import kernel
 from sklearn import svm
 import matplotlib as mpl
+from sklearn.metrics import f1_score
+
 
 MIN_SUPPORT_VECTOR_MULTIPLIER = 1e-5
 class svm_oago:
@@ -47,18 +49,6 @@ class svm_oago:
         self.train_size = train_size
         self._kernel = kernel
         self._c = c
-
-
-
-
-        # notice 这里输入的数据界定svm训练了几维
-        # self.test_x = self.test_x[:, 2:4]
-        # self.pred = np.array(self.pred)[:,2:4]
-
-        # self.feature = self.test_x.shape[1]
-        # self.support_multipliers = []
-        # self.support_vectors = []
-        # self.support_vector_labels = []
 
     def train_oago(self):
         # test1 class1的数据为-1，class2的数据为+1
@@ -126,6 +116,13 @@ class svm_oago:
         self.pred = np.array(self.pred)
         ans = self.oago_pred(test1,test2,test3,self.pred)
         print(ans)
+        label = np.ones((10, 1))
+        labels = []
+        labels.extend(label - 1)
+        labels.extend(label)
+        labels.extend(label + 1)
+        f1_micro = f1_score(labels,ans, average = 'micro')
+        print('f1_micro: {0}'.format(f1_micro))
 
         # 开始画图
         x1_min, x1_max = self.data[:, 0].min(), self.data[:, 0].max()  # 第0列的范围
@@ -157,6 +154,7 @@ class svm_oago:
         labels = np.ravel(np.array(labels))
         plt.scatter(self.train_data_plot[:, 2], self.train_data_plot[:, 3], c=labels, edgecolors='k', s=50, cmap=cm_dark)
         plt.show()
+
 
         # clf = svm.SVC(gamma='auto')
         # clf.fit(self.test_x, self.test_y)
@@ -194,7 +192,171 @@ class svm_oago:
 
         return np.ravel(ans)
 
+class svm_oagm:
+    def __init__(self,data,true_labels,kernel=kernel.Kernel.radial_basis(),c = 1,K = 3,train_size=40):
+        self.data = data
+        self.true_labels = true_labels
+        self.cluster = K  # 共有几类
+        self.NUM = len(data)
+        self.train_data = []
+        self.test_data = []
+        for i in range(self.cluster):
+            temp = []
+            temp1 = []
+            temp_choice = np.random.choice(a=(self.NUM//self.cluster),size = train_size,replace = False)
+            temp_choice += i * (self.NUM//self.cluster)
+            for i in range(i*(self.NUM//self.cluster),(i+1)*self.NUM//self.cluster):
+                if i in temp_choice:
+                    temp.append(self.data[i])
+                else:
+                    temp1.append(self.data[i])
+            self.train_data.append(np.array(temp))
+            self.test_data.append(np.array(temp1))
+        self.train_size = train_size
+        self._kernel = kernel
+        self._c = c
 
+    def train_oagm(self):
+        # test1 class1的数据为-1，class2的数据为+1
+        # self.feature = self.test_x.shape[1]
+        self.test_x = []
+        self.test_x.extend(self.train_data[0])
+        self.test_x.extend(self.train_data[1])
+        self.test_x.extend(self.train_data[2])
+        label = np.ones((40, 1))
+        self.test_y = []
+        self.test_y.extend(label - 2)
+        self.test_y.extend(label)
+        self.test_y.extend(label)
+        self.test_x = np.array(self.test_x)
+        self.test_y = np.ravel(np.array(self.test_y))
+        self.pred = []
+        self.pred.extend(self.test_data[0])
+        self.pred.extend(self.test_data[1])
+        self.pred.extend(self.test_data[2])
+        self.pred = np.array(self.pred)
+        test1 = svm_train(self.test_x, self.test_y,kernel=kernel.Kernel.radial_basis(1/self.test_x.shape[1]),c = 1)
+        test1.train()
+        print(test1.predict(self.pred))
+        test1.plot(self.pred)
+
+        self.test_x = []
+        self.test_x.extend(self.train_data[1])
+        self.test_x.extend(self.train_data[0])
+        self.test_x.extend(self.train_data[2])
+        label = np.ones((40, 1))
+        self.test_y = []
+        self.test_y.extend(label - 2)
+        self.test_y.extend(label)
+        self.test_y.extend(label)
+        self.test_x = np.array(self.test_x)
+        self.test_y = np.ravel(np.array(self.test_y))
+        self.pred = []
+        self.pred.extend(self.test_data[1])
+        self.pred.extend(self.test_data[0])
+        self.pred.extend(self.test_data[2])
+        self.pred = np.array(self.pred)
+        test2 = svm_train(self.test_x, self.test_y, kernel=kernel.Kernel.radial_basis(1 / self.test_x.shape[1]), c=1)
+        test2.train()
+        print(test2.predict(self.pred))
+        test2.plot(self.pred)
+
+        self.test_x = []
+        self.test_x.extend(self.train_data[2])
+        self.test_x.extend(self.train_data[0])
+        self.test_x.extend(self.train_data[1])
+        label = np.ones((40, 1))
+        self.test_y = []
+        self.test_y.extend(label - 2)
+        self.test_y.extend(label)
+        self.test_y.extend(label)
+        self.test_x = np.array(self.test_x)
+        self.test_y = np.ravel(np.array(self.test_y))
+        self.pred = []
+        self.pred.extend(self.test_data[2])
+        self.pred.extend(self.test_data[0])
+        self.pred.extend(self.test_data[1])
+        self.pred = np.array(self.pred)
+        test3 = svm_train(self.test_x, self.test_y, kernel=kernel.Kernel.radial_basis(1 / self.test_x.shape[1]), c=1)
+        test3.train()
+        print(test3.predict(self.pred))
+        test3.plot(self.pred)
+
+        self.pred = []
+        self.pred.extend(self.test_data[0])
+        self.pred.extend(self.test_data[1])
+        self.pred.extend(self.test_data[2])
+        self.pred = np.array(self.pred)
+        ans = self.oago_pred(test1, test2, test3, self.pred)
+        print(ans)
+        label = np.ones((10, 1))
+        labels = []
+        labels.extend(label - 1)
+        labels.extend(label)
+        labels.extend(label + 1)
+        f1_micro = f1_score(labels, ans, average='micro')
+        print('f1_micro: {0}'.format(f1_micro))
+
+        # 开始画图
+        x1_min, x1_max = self.data[:, 0].min(), self.data[:, 0].max()  # 第0列的范围
+        x2_min, x2_max = self.data[:, 1].min(), self.data[:, 1].max()  # 第1列的范围
+        x3_min, x3_max = self.data[:, 2].min(), self.data[:, 2].max()  # 第2列的范围
+        x4_min, x4_max = self.data[:, 3].min(), self.data[:, 3].max()  # 第3列的范围
+        x1, x2 = np.mgrid[x1_min:x1_max:600j, x2_min:x2_max:600j]
+        x3, x4 = np.mgrid[x3_min:x3_max:600j, x4_min:x4_max:600j]
+        grid_test = np.stack((x1.flat, x2.flat, x3.flat, x4.flat), axis=1)  # 测试点
+        grid_hat = self.oago_pred(test1, test2, test3, grid_test)  # 预测分类值
+        grid_hat = grid_hat.reshape(x1.shape)  # 使之与输入的形状相同
+        cm_light = mpl.colors.ListedColormap(['#A0FFA0', '#FFA0A0', "#89CFF0"])
+        plt.xlim(x3_min, x3_max)
+        plt.ylim(x4_min, x4_max)
+        # print(grid_hat)
+        plt.pcolormesh(x3, x4, grid_hat, cmap=cm_light)
+        cm_dark = mpl.colors.ListedColormap(['g', 'r', 'b'])
+        plt.scatter(self.pred[:, 2], self.pred[:, 3], c=ans, edgecolors='k', s=50, cmap=cm_dark, marker='^')
+        self.train_data_plot = []
+        self.train_data_plot.extend(self.train_data[0])
+        self.train_data_plot.extend(self.train_data[1])
+        self.train_data_plot.extend(self.train_data[2])
+        self.train_data_plot = np.array(self.train_data_plot)
+        label = np.ones((40, 1))
+        labels = []
+        labels.extend(label - 1)
+        labels.extend(label)
+        labels.extend(label + 1)
+        labels = np.ravel(np.array(labels))
+        plt.scatter(self.train_data_plot[:, 2], self.train_data_plot[:, 3], c=labels, edgecolors='k', s=50,
+                    cmap=cm_dark)
+        plt.show()
+
+
+    def oago_pred(self,test1,test2,test3,test_data):
+        '''
+        实现多分类一对一svm的预测功能
+        :param test1: class0-12的svm
+        :param test2: class1-02的svm
+        :param test3: class2-01的svm
+        :param test_data:  测试集
+        :return: list，包含预测的结果
+        '''
+        ans = np.zeros((test_data.shape[0], 1))
+        flag1 = test1.predict(test_data)
+        flag2 = test2.predict(test_data)
+        flag3 = test3.predict(test_data)
+
+        # notice 值得注意的是这里，这个判断在绘制决策边界附近的点的时候很难说，因为决策边界中有可能有情况不符合这种点
+        # 即一个错，另一个没有的那种情况
+        for i,a in enumerate(flag1):
+            b = flag2[i]
+            c = flag3[i]
+            if a==-1 and b==1 and c==1:
+                ans[i] = 0
+            if b==-1 and c==1 and a==1:
+                ans[i] = 1
+            if c==-1 and a==1 and b==1:
+                ans[i] = 2
+
+        return np.ravel(ans)
 
 class svm_train:
     def __init__(self,data,true_labels,kernel=kernel.Kernel.radial_basis(),c = 1):

@@ -24,3 +24,6 @@ print('读入数据完毕')
 
 test = svm_oago(data, true_labels)
 test.train_oago()
+
+test = svm_oagm(data, true_labels)
+test.train_oagm()
