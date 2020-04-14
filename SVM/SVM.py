@@ -287,7 +287,7 @@ class svm_train:
 
     def plot(self,pred = []):
         '''
-        # todo 这个plot函数是不是应该给大类？
+        # done 这个plot函数是不是应该给大类？
         # done 二维绘图，指的是svm是用二维数据训练出来的
         '''
         class1 = np.array(
