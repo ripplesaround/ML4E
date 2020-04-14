@@ -47,34 +47,79 @@ class svm_oago:
         self.train_size = train_size
         self._kernel = kernel
         self._c = c
-        self.test_x =[]
+
+
+
+
+        # notice 这里输入的数据界定svm训练了几维
+        # self.test_x = self.test_x[:, 2:4]
+        # self.pred = np.array(self.pred)[:,2:4]
+
+        # self.feature = self.test_x.shape[1]
+        # self.support_multipliers = []
+        # self.support_vectors = []
+        # self.support_vector_labels = []
+
+    def train_oago(self):
+        # test1 class1的数据为-1，class2的数据为+1
+        # self.feature = self.test_x.shape[1]
+        self.test_x = []
         self.test_x.extend(self.train_data[1])
         self.test_x.extend(self.train_data[2])
-        label = np.ones((40,1))
-        self.test_y =[]
-        self.test_y.extend(label-2)
+        label = np.ones((40, 1))
+        self.test_y = []
+        self.test_y.extend(label - 2)
         self.test_y.extend(label)
         self.test_x = np.array(self.test_x)
         self.test_y = np.ravel(np.array(self.test_y))
         self.pred = []
-        self.pred.extend(self.train_data[1])
-        self.pred.extend(self.train_data[2])
+        self.pred.extend(self.test_data[1])
+        self.pred.extend(self.test_data[2])
         self.pred = np.array(self.pred)
+        test1 = svm_train(self.test_x, self.test_y,kernel=kernel.Kernel.radial_basis(1/self.test_x.shape[1]),c = 1)
+        test1.train()
+        print(test1.predict(self.pred))
+        test1.plot(self.pred)
 
-        # notice 这里输入的数据界定svm训练了几维
-        self.test_x = self.test_x[:, 2:4]
-        self.pred = np.array(self.pred)[:,2:4]
+        # test2 class0的数据为-1，class1的数据为+1
+        self.test_x = []
+        self.test_x.extend(self.train_data[0])
+        self.test_x.extend(self.train_data[1])
+        label = np.ones((40, 1))
+        self.test_y = []
+        self.test_y.extend(label - 2)
+        self.test_y.extend(label)
+        self.test_x = np.array(self.test_x)
+        self.test_y = np.ravel(np.array(self.test_y))
+        self.pred = []
+        self.pred.extend(self.test_data[0])
+        self.pred.extend(self.test_data[1])
+        self.pred = np.array(self.pred)
+        test2 = svm_train(self.test_x, self.test_y, kernel=kernel.Kernel.radial_basis(1 / self.test_x.shape[1]), c=1)
+        test2.train()
+        print(test2.predict(self.pred))
+        test2.plot(self.pred)
 
-        self.feature = self.test_x.shape[1]
-        self.support_multipliers = []
-        self.support_vectors = []
-        self.support_vector_labels = []
+        # test3 class0的数据为-1，class2的数据为+1
+        self.test_x = []
+        self.test_x.extend(self.train_data[0])
+        self.test_x.extend(self.train_data[2])
+        label = np.ones((40, 1))
+        self.test_y = []
+        self.test_y.extend(label - 2)
+        self.test_y.extend(label)
+        self.test_x = np.array(self.test_x)
+        self.test_y = np.ravel(np.array(self.test_y))
+        self.pred = []
+        self.pred.extend(self.test_data[0])
+        self.pred.extend(self.test_data[2])
+        self.pred = np.array(self.pred)
+        test3 = svm_train(self.test_x, self.test_y, kernel=kernel.Kernel.radial_basis(1 / self.test_x.shape[1]), c=1)
+        test3.train()
+        print(test3.predict(self.pred))
+        test3.plot(self.pred)
 
-    def train_oago(self):
-        test = svm_train(self.test_x, self.test_y,kernel=kernel.Kernel.radial_basis(1/self.feature),c = 1)
-        test.train()
-        print(test.predict(self.pred))
-        test.plot()
+
         clf = svm.SVC(gamma='auto')
         clf.fit(self.test_x, self.test_y)
         print('------------------------------------\nsklearn')
@@ -82,6 +127,10 @@ class svm_oago:
         print(clf.n_support_)
         print(clf.predict(self.pred))
         print('------------------------------------')
+
+    def pred(self,test1,test2,test3):
+        return 0
+
 
 
 class svm_train:
@@ -163,7 +212,7 @@ class svm_train:
     def cal_show(self,y):
         ans = np.zeros((y.shape[0], 1))
         for i,k in enumerate(y):
-            ans[i] = self.cal(k)
+            ans[i] = np.sign(self.cal(k))
         return ans
 
     def predict(self, y):
@@ -172,32 +221,48 @@ class svm_train:
             ans[i] = np.sign(self.cal(k))
         return np.ravel(ans)
 
-    # todo 这个plot函数是不是应该给大类？
-    # done 二维绘图，指的是svm是用二维数据训练出来的
-    def plot(self):
+
+    def plot(self,pred = []):
+        '''
+        # todo 这个plot函数是不是应该给大类？
+        # done 二维绘图，指的是svm是用二维数据训练出来的
+        '''
         class1 = np.array(
             [self.support_vectors[i] for i in range(len(self.support_vectors)) if self.support_vector_labels[i] == -1])
         class2 = np.array(
-            [self.support_vectors[i] for i in range(len(self.support_vectors)) if self.support_vector_labels[i] == 1])
+            [self.support_vectors[i]  for i in range(len(self.support_vectors)) if self.support_vector_labels[i] == 1])
         print('开始画图')
         x1_min, x1_max = self.support_vectors[:, 0].min(), self.support_vectors[:, 0].max()  # 第0列的范围
         x2_min, x2_max = self.support_vectors[:, 1].min(), self.support_vectors[:, 1].max()  # 第1列的范围
+        x3_min, x3_max = self.support_vectors[:, 2].min(), self.support_vectors[:, 2].max()  # 第2列的范围
+        x4_min, x4_max = self.support_vectors[:, 3].min(), self.support_vectors[:, 3].max()  # 第3列的范围
         x1, x2 = np.mgrid[x1_min:x1_max:200j, x2_min:x2_max:200j]
-        grid_test = np.stack((x1.flat, x2.flat), axis=1)  # 测试点
+        x3, x4 = np.mgrid[x3_min:x3_max:200j, x4_min:x4_max:200j]
+        grid_test = np.stack((x1.flat, x2.flat,x3.flat,x4.flat), axis=1)  # 测试点
         grid_hat = self.cal_show(grid_test)  # 预测分类值
         grid_hat = grid_hat.reshape(x1.shape)  # 使之与输入的形状相同
         cm_light = mpl.colors.ListedColormap(['#A0FFA0', '#FFA0A0'])
         cm_dark = mpl.colors.ListedColormap(['g', 'r'])
-        plt.xlim(x1_min, x1_max)
-        plt.ylim(x2_min, x2_max)
+        plt.xlim(x3_min, x3_max)
+        plt.ylim(x4_min, x4_max)
         # print(grid_hat)
-        plt.pcolormesh(x1, x2, grid_hat, cmap=cm_light)
-        plt.scatter(self.data[:, 0], self.data[:, 1], c=self.true_labels, edgecolors='k', s=50, cmap=cm_dark)  # 样本
-        plt.xlim(x1_min, x1_max)
-        plt.ylim(x2_min, x2_max)
-        plt.title("test", fontsize=15)
+        plt.pcolormesh(x3, x4, grid_hat, cmap=cm_light)
+        plt.scatter(self.data[:, 2], self.data[:, 3], c=self.true_labels, edgecolors='k', s=50, cmap=cm_dark)  # 样本
+        plt.xlim(x3_min, x3_max)
+        plt.ylim(x4_min, x4_max)
+
+        if len(pred)>0:
+            ans = self.predict(pred)
+            plt.scatter(pred[:, 2], pred[:, 3], c=ans, edgecolors='k', s=50, cmap=cm_dark,marker = '^')
+            plt.xlim(x3_min, x3_max)
+            plt.ylim(x4_min, x4_max)
+
+
+        # plt.title("test", fontsize=15)
         # plt.grid()
         plt.show()
+
+
         # k1,k2,k3,k4  = np.mgrid[1:3:3j, 1.5:4.5:3j,4:8:3j, 0:3:3j]
         # print(k1,k2,k3,k4)
 

@@ -9,7 +9,6 @@ desc:
 '''
 import sys
 import copy
-sys.path.append("../")
 import data_process
 import numpy as np
 import matplotlib.pyplot as plt
