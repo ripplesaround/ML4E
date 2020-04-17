@@ -121,3 +121,70 @@ GCN主要进展两大方向
 - 谱方法 Spectral approach
 - 空间方法 spatial approach
 
+### 谱方法
+
+#### 谱网络
+
+谱是图的一种表示。
+
+> The convolution operation is defined in the Fourier domain by computing the eigendecomposition of the graph Laplacian.
+
+<img src="I2GNN%20%E7%AE%80%E6%98%8E/image-20200417224437464.png" alt="image-20200417224437464" style="zoom:50%;" />
+
+- 计算量大 intense computations
+
+- 非空间的局部过滤器 non-spatially localized filters
+
+  - 可以用平滑系数的方式将其过渡到局部空间化的
+
+    > introducing a parameterization with smooth coefficients.
+
+#### CHEBNET
+
+<img src="I2GNN%20%E7%AE%80%E6%98%8E/image-20200417225753480.png" alt="image-20200417225753480" style="zoom:50%;" />可以用Chebyshev polynomials进行截断展开（a truncated expansion）
+
+<img src="I2GNN%20%E7%AE%80%E6%98%8E/image-20200417225856663.png" alt="image-20200417225856663" style="zoom:50%;" />
+
+#### GCN
+
+<img src="I2GNN%20%E7%AE%80%E6%98%8E/image-20200417232200148.png" alt="image-20200417232200148" style="zoom:50%;" />
+
+图网络中的overfitting是如何表现的呢？
+
+> overfitting on local neighborhood structures for graphs with very wide node degree distributions
+
+可以被看作是谱方法，也可以被看作是空间方法
+
+<img src="I2GNN%20%E7%AE%80%E6%98%8E/image-20200417232510804.png" alt="image-20200417232510804" style="zoom:50%;" />
+
+- 可能会有数值不稳定 / 梯度消失的特点
+  - Renormalization trick
+- 可以把x拓展，x是信号（singal），从一维拓展到多个维度，多个channel
+
+<img src="I2GNN%20%E7%AE%80%E6%98%8E/image-20200417232842455.png" alt="image-20200417232842455" style="zoom:50%;" />
+
+#### AGCN - Adaptive Graph Convolution Network
+
+原先的方法都只考虑了初始图的点之间的关系，自适应GCN是为了learn the underlying relations。
+
+- AGCN学习了一个“剩余（residual）”图的拉普拉斯矩阵，并将其与原先的拉普拉斯矩阵结合。
+
+  <img src="I2GNN%20%E7%AE%80%E6%98%8E/image-20200417233540566.png" alt="image-20200417233540566" style="zoom:50%;" />
+
+  <img src="I2GNN%20%E7%AE%80%E6%98%8E/image-20200417233836053.png" alt="image-20200417233836053" style="zoom:50%;" />
+
+  $\hat A$ 是一个学习到的邻接矩阵，is computed via a learned metric
+
+  - 这个metric是提出的动机是欧式距离不能够衡量具有非欧性质的图网络
+
+  - 所以采用了generalized Mahalanobis distance
+
+    <img src="I2GNN%20%E7%AE%80%E6%98%8E/image-20200417234244369.png" alt="image-20200417234244369" style="zoom:50%;" />
+
+    （邻接矩阵可能存在太过于稀疏的问题？会有什么样的影响？）
+
+  
+
+  ### 空间方法 Spatital methods
+
+  谱方法的训练的过滤器基于拉普拉斯矩阵的特征分解，而这也取决于其中的图结构。也就说明谱方法无法直接拓展到不同结构的图上。
