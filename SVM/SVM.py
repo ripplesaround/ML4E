@@ -386,6 +386,7 @@ class svm_train:
         self.support_multipliers = lagrange_multipliers[support_vector_indices]
         self.support_vectors = X[support_vector_indices]
         self.support_vector_labels = y[support_vector_indices]
+        print("支持向量数量",len(self.support_vectors))
         for i,k in enumerate(support_vector_indices):
             if self._c-lagrange_multipliers[i] > MIN_SUPPORT_VECTOR_MULTIPLIER and k == True:
                 print(f"计算bias是用的第{i}号向量")
